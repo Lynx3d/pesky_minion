@@ -45,6 +45,15 @@ local images =
 	halloween_spider = "Minion_I19E.dds" -- 1B1
 }
 
+function Pesky.UI.RightClickhandler(frame, hEvent)
+	-- TODO: Slot setting, now only 5/15/20m slot
+	local adventure = Pesky.advDeck[2]
+	if frame.minion_id and adventure then
+		print(string.format("Sending %s on %s", frame.minion_id, adventure.name))
+		Command.Minion.Send(frame.minion_id, adventure.id, "none")
+	end
+end
+
 function Pesky.UI.CreateMinionIcon(name, parent)
 	local widget = UI.CreateFrame("Frame", name, parent)
 	widget:SetWidth(192)
@@ -76,11 +85,13 @@ function Pesky.UI.CreateMinionIcon(name, parent)
 	widget.name_text:SetPoint("TOPLEFT", widget, "TOPLEFT", 64, 3)
 	widget.name_text:SetWidth(128)
 
+	widget:EventAttach(Event.UI.Input.Mouse.Right.Click, Pesky.UI.RightClickhandler, name .. "_right_click")
 	widget.SetMinionDisplay = Pesky.UI.SetMinionDisplay
 	return widget
 end
 
 function Pesky.UI.SetMinionDisplay(widget, details)
+	widget.minion_id = details.id
 	--local details = Pesky.minionDB[minion]
 	local border_img = icon_border[details.rarity] or icon_border.common
 	widget.icon_border:SetTexture("Rift", border_img)
@@ -95,7 +106,7 @@ end
 
 function Pesky.UI.CreateMinionList()
 	Pesky.UI.minionWidget = UI.CreateFrame("Frame", "Pesky_minion_widget", Pesky.context)
-	Pesky.UI.minionWidget:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 600, 50)
+	Pesky.UI.minionWidget:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 50, 400)
 	Pesky.UI.minionList = {}
 	for i = 1, Pesky.UI.listBestN do
 		Pesky.UI.minionList[i] = Pesky.UI.CreateMinionIcon("frame" .. i, Pesky.UI.minionWidget)
