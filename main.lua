@@ -1,7 +1,9 @@
 local addon, Pesky = ...
 
 Pesky.availableAdv = {}
-Pesky.advDeck = {} -- slots 1-4
+Pesky.advDeck = {} -- slots 1-4, 5 is "pushed out by new card"
+Pesky.advWorking = {} -- list of adventures in progress
+Pesky.advFinished = {} -- list of claimable adventures
 
 function Pesky.TryFreeShuffle(adventure)
 	Command.Minion.Shuffle(adventure, "none")
@@ -29,15 +31,19 @@ function Pesky.AddToDeck(details)
 		return
 	end
 	if Pesky.advDeck[slot] then
-		print(string.format("Warning, slot %i was not empty!", slot))
+		Pesky.advDeck[5] = Pesky.advDeck[slot]
+		print(string.format("Pushed out card in slot %i!", slot))
 	end
 	Pesky.advDeck[slot] = details
 end
 
 function Pesky.RemoveFromDeck(details)
-	for slot = 1, 4 do
+	for slot = 1, 5 do
 		if Pesky.advDeck[slot] and Pesky.advDeck[slot].id == details.id then
 			Pesky.advDeck[slot] = nil
+			if slot == 5 then
+				print("cleared pushed out card!")
+			end
 			return
 		end
 	end
@@ -51,31 +57,54 @@ function Pesky.AdventureChangeHandler(hEvent, adventures)
 	for id, unknown in pairs(adventures) do
 		-- print(id, unknown)
 		details = Inspect.Minion.Adventure.Detail(id)
-		if details and details.mode == "available" then
-			--print("new adventure:", details.name)
-			Pesky.availableAdv[id] = details
-			Pesky.AddToDeck(details)
-			Pesky.UpdateAdventureDB(details)
-			--if Pesky_AdventureBL[id] then
-			--	print(string.format("Blacklist hit for: %s (%i) %s", id, details.duration, details.name))
-			--end
-			--local suitable = Pesky.Minions.GetSuitableMinions(details)
-			--for i = 1, #suitable do
-			--	print(suitable[i].minion.name, suitable[i].score)
-			--	if i>3 then break end
-			--end
-			-- Test:
-			Pesky.UI.UpdateSuitableMinions(details)
-			-- EOTest
-			Pesky.TryFreeShuffle(id)
-		else
-			if Pesky.availableAdv[id] then
-				print("removing:", id, details ~= nil, details and details.mode)
-				Pesky.availableAdv[id] = nil
-			--else
-			--	print("other update", id, details and details.mode)
+		if details then
+			if details.mode == "available" then
+				--print("new adventure:", details.name)
+				Pesky.availableAdv[id] = details
+				Pesky.AddToDeck(details)
+				Pesky.UpdateAdventureDB(details)
+				--if Pesky_AdventureBL[id] then
+				--	print(string.format("Blacklist hit for: %s (%i) %s", id, details.duration, details.name))
+				--end
+				--local suitable = Pesky.Minions.GetSuitableMinions(details)
+				--for i = 1, #suitable do
+				--	print(suitable[i].minion.name, suitable[i].score)
+				--	if i>3 then break end
+				--end
+				-- Test:
+				Pesky.UI.UpdateSuitableMinions(details)
+				-- EOTest
+				Pesky.TryFreeShuffle(id)
+			elseif details.mode == "working" then
+				Pesky.RemoveFromDeck(details)
+				if Pesky.availableAdv[id] then
+					print("removing:", id, " mode:", details.mode)
+					Pesky.availableAdv[id] = nil
+				end
+			elseif details.mode == "finished" then
+				if not Pesky.advWorking[id] then
+					print("Adventure not in working list:", id)
+				end
+				Pesky.advWorking[id] = nil
+				Pesky.advFinished[id] = details
+			else
+				if Pesky.advFinished[id] then
+					Pesky.advFinished[id] = nil
+					print("Adventure claimed:", id)
+				else
+					Pesky.RemoveFromDeck(details)
+					if Pesky.availableAdv[id] then
+						print("removing:", id, " mode:", details.mode)
+						Pesky.availableAdv[id] = nil
+					end
+				end
 			end
-			Pesky.RemoveFromDeck(details)
+		else
+			-- internal cleanup?
+			if Pesky.availableAdv[id] then
+				print("removing:", id, " (no details)")
+				Pesky.availableAdv[id] = nil
+			end
 		end
 	end
 end
@@ -168,6 +197,10 @@ function Pesky.SystemUpdateHandler_Init(hEvent)
 			Pesky.availableAdv[id] = details
 			Pesky.AddToDeck(details)
 			Pesky.UpdateAdventureDB(details)
+		elseif details.mode == "working" then
+			Pesky.advWorking[id] = details
+		elseif details.mode == "finished" then
+			Pesky.advFinished[id] = details
 		end
 	end
 	Pesky.InitMinionDB()
