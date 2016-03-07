@@ -1,0 +1,33 @@
+Identifier = "PeskyMinion"
+Name = {
+    English = "Pesky Minion"
+}
+NameShort = "PM"
+Description = {
+    English = [[
+This Addon shuffles pesky credit adventures automatically
+]]
+}
+Author = "Lynx3d"
+Website = "N.A."
+Version = "v0.1"
+Email = "lynx3d@noreply.org"
+Environment = "2.5"
+
+RunOnStartup = {
+	"main.lua",
+	"data.lua",
+	"minions.lua",
+	"ui.lua"
+}
+
+Embed = {
+}
+
+SavedVariables = {
+	Pesky_AdventureDB = "account",
+	Pesky_AdventureBL = "account"
+}
+
+Dependencies = {
+}
