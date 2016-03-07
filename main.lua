@@ -1,6 +1,7 @@
 local addon, Pesky = ...
 
 Pesky.availableAdv = {}
+Pesky.advDeck = {} -- slots 1-4
 
 function Pesky.TryFreeShuffle(adventure)
 	Command.Minion.Shuffle(adventure, "none")
@@ -22,6 +23,28 @@ function Pesky.InitMinionDB()
 	Pesky.minionDB = Inspect.Minion.Minion.Detail(list)
 end
 
+function Pesky.AddToDeck(details)
+	local slot = Pesky.Adventure.GetSlot(details)
+	if not slot then
+		return
+	end
+	if Pesky.advDeck[slot] then
+		print(string.format("Warning, slot %i was not empty!", slot))
+	end
+	Pesky.advDeck[slot] = details
+end
+
+function Pesky.RemoveFromDeck(details)
+	for slot = 1, 4 do
+		if Pesky.advDeck[slot] and Pesky.advDeck[slot].id == details.id then
+			Pesky.advDeck[slot] = nil
+			return
+		end
+	end
+	print("could not find adventure in deck:")
+	dump(details)
+end
+
 function Pesky.AdventureChangeHandler(hEvent, adventures)
 	print("Adventure.Change")
 	local details
@@ -31,6 +54,7 @@ function Pesky.AdventureChangeHandler(hEvent, adventures)
 		if details and details.mode == "available" then
 			--print("new adventure:", details.name)
 			Pesky.availableAdv[id] = details
+			Pesky.AddToDeck(details)
 			Pesky.UpdateAdventureDB(details)
 			--if Pesky_AdventureBL[id] then
 			--	print(string.format("Blacklist hit for: %s (%i) %s", id, details.duration, details.name))
@@ -46,11 +70,12 @@ function Pesky.AdventureChangeHandler(hEvent, adventures)
 			Pesky.TryFreeShuffle(id)
 		else
 			if Pesky.availableAdv[id] then
-				print("removing:", id, details and details.mode)
+				print("removing:", id, details ~= nil, details and details.mode)
 				Pesky.availableAdv[id] = nil
 			--else
 			--	print("other update", id, details and details.mode)
 			end
+			Pesky.RemoveFromDeck(details)
 		end
 	end
 end
@@ -59,6 +84,12 @@ function Pesky.CommandHandler(hEvent, command)
 	if command == "available" then
 		for id, details in pairs(Pesky.availableAdv) do
 			print(string.format("%s (%i) %s", id, details.duration, details.name))
+		end
+		for slot = 1, 4 do
+			local details = Pesky.advDeck[slot]
+			if details then
+				print(string.format("slot %i: %imin, %s", slot, details.duration/60, details.name))
+			end
 		end
 	elseif command == "last" then
 		local details = Pesky_AdventureDB[Pesky.lastAdventure]
@@ -135,6 +166,7 @@ function Pesky.SystemUpdateHandler_Init(hEvent)
 	for id, details in pairs(adventures) do
 		if details.mode == "available" then
 			Pesky.availableAdv[id] = details
+			Pesky.AddToDeck(details)
 			Pesky.UpdateAdventureDB(details)
 		end
 	end

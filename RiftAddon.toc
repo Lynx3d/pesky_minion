@@ -17,6 +17,7 @@ Environment = "2.5"
 RunOnStartup = {
 	"main.lua",
 	"data.lua",
+	"adventure.lua",
 	"minions.lua",
 	"ui.lua"
 }
