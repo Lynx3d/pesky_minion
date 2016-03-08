@@ -4,6 +4,8 @@ Pesky.availableAdv = {}
 Pesky.advDeck = {} -- slots 1-4, 5 is "pushed out by new card"
 Pesky.advWorking = {} -- list of adventures in progress
 Pesky.advFinished = {} -- list of claimable adventures
+Pesky.minionWorking = {} -- list of minion busy with an adventure
+Pesky.selectedSlot = 2
 
 function Pesky.TryFreeShuffle(adventure)
 	Command.Minion.Shuffle(adventure, "none")
@@ -54,59 +56,89 @@ end
 function Pesky.AdventureChangeHandler(hEvent, adventures)
 	print("Adventure.Change")
 	local details
-	for id, unknown in pairs(adventures) do
-		-- print(id, unknown)
+	local count = 0
+	local available, working, finished, removed = {}, {}, {}, {}
+
+	for id, _ in pairs(adventures) do
+		count = count + 1
 		details = Inspect.Minion.Adventure.Detail(id)
 		if details then
 			if details.mode == "available" then
-				--print("new adventure:", details.name)
-				Pesky.availableAdv[id] = details
-				Pesky.AddToDeck(details)
-				Pesky.UpdateAdventureDB(details)
-				--if Pesky_AdventureBL[id] then
-				--	print(string.format("Blacklist hit for: %s (%i) %s", id, details.duration, details.name))
-				--end
-				--local suitable = Pesky.Minions.GetSuitableMinions(details)
-				--for i = 1, #suitable do
-				--	print(suitable[i].minion.name, suitable[i].score)
-				--	if i>3 then break end
-				--end
-				-- Test:
-				Pesky.UI.UpdateSuitableMinions(details)
-				-- EOTest
-				Pesky.TryFreeShuffle(id)
+				available[id] = details
 			elseif details.mode == "working" then
-				Pesky.RemoveFromDeck(details)
-				if Pesky.availableAdv[id] then
-					print("removing:", id, " mode:", details.mode)
-					Pesky.availableAdv[id] = nil
-				end
+				working[id] = details
 			elseif details.mode == "finished" then
-				if not Pesky.advWorking[id] then
-					print("Adventure not in working list:", id)
-				end
-				Pesky.advWorking[id] = nil
-				Pesky.advFinished[id] = details
+				finished[id] = details
 			else
-				if Pesky.advFinished[id] then
-					Pesky.advFinished[id] = nil
-					print("Adventure claimed:", id)
-				else
-					Pesky.RemoveFromDeck(details)
-					if Pesky.availableAdv[id] then
-						print("removing:", id, " mode:", details.mode)
-						Pesky.availableAdv[id] = nil
-					end
-				end
+				removed[id] = details
 			end
 		else
-			-- internal cleanup?
-			if Pesky.availableAdv[id] then
-				print("removing:", id, " (no details)")
-				Pesky.availableAdv[id] = nil
+			removed[id] = false
+		end
+	end
+
+	for id, details in pairs(finished) do
+		Pesky.advFinished[id] = details
+		if Pesky.advWorking[id] then
+			Pesky.advWorking[id] = nil
+			print("Moved adventure from working to finished", id)
+		else
+			print("Warning: Expected adventure to be in working state!", id)
+		end
+	end
+	for id, details in pairs(working) do
+		Pesky.advWorking[id] = details
+		Pesky.minionWorking[details.minion] = details
+		--Pesky.RemoveFromDeck(details)
+		local slot = Pesky.Adventure.GetSlot(details)
+		if Pesky.advDeck[slot] and Pesky.advDeck[slot].id == id then
+			Pesky.advDeck[slot] = nil
+			print("Moved adventure from available to working:", id)
+		else
+			print("Warning: Working adventure not in deck:", id)
+		end
+	end
+	for id, details in pairs(available) do
+		local slot = Pesky.Adventure.GetSlot(details)
+		local rem_id = Pesky.advDeck[slot] and Pesky.advDeck[slot].id
+		if rem_id then
+			if removed[rem_id] then
+				removed[rem_id] = nil
+			else
+				print("Warning: Expected available adventure to be removed first", slot)
+			end
+			--Pesky.RemoveFromDeck(details)
+			print("Shuffled adventure:", id)
+		else
+			print("Refilled deck slot:", slot)
+		end
+		Pesky.advDeck[slot] = details
+		-- Test:
+		if slot == Pesky.selectedSlot then
+			Pesky.UI.UpdateSuitableMinions(details)
+		end
+		if slot == 2 or slot == 3 then
+			Pesky.TryFreeShuffle(id)
+		end
+		-- EOTest
+	end
+	for id, details in pairs(removed) do
+		if details then
+			if Pesky.advFinished[id] then
+				print("claimed adventure:", id, " minion:", details.minion)
+			else
+				print("Leftover remove:", id)
+			end
+			-- details.minion already nil, need to search...
+			for minion, adv_details in pairs(Pesky.minionWorking) do
+				if adv_details.id == id then
+					Pesky.minionWorking[minion] = nil
+					break
+				end
 			end
 		end
 	end
+	if count > 1 then print("Updated multiple adventures:", count) end
 end
 
 function Pesky.CommandHandler(hEvent, command)
@@ -134,7 +166,7 @@ function Pesky.CommandHandler(hEvent, command)
 			Pesky.MinionFrame0:SetVisible(not Pesky.MinionFrame0:GetVisible())
 		end]]--
 		if not Pesky.UI.minionWidget then
-			Pesky.UI.UpdateSuitableMinions(Pesky_AdventureDB[Pesky.lastAdventure])
+			Pesky.UI.UpdateSuitableMinions(Pesky.advDeck[Pesky.selectedSlot])
 		else
 			Pesky.UI.minionWidget:SetVisible(not Pesky.UI.minionWidget:GetVisible())
 		end
