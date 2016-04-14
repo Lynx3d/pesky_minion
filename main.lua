@@ -108,7 +108,7 @@ function Pesky.AdventureChangeHandler(hEvent, adventures)
 				print("Warning: Expected available adventure to be removed first", slot)
 			end
 			--Pesky.RemoveFromDeck(details)
-			print("Shuffled adventure:", id)
+			print("Shuffled adventure:", rem_id)
 		else
 			print("Refilled deck slot:", slot)
 		end
@@ -116,6 +116,7 @@ function Pesky.AdventureChangeHandler(hEvent, adventures)
 		-- Test:
 		if slot == Pesky.selectedSlot then
 			Pesky.UI.UpdateSuitableMinions(details)
+			Pesky.UI.UpdateCardDisplay(details)
 		end
 		if slot == 2 or slot == 3 then
 			Pesky.TryFreeShuffle(id)
@@ -169,6 +170,14 @@ function Pesky.CommandHandler(hEvent, command)
 			Pesky.UI.UpdateSuitableMinions(Pesky.advDeck[Pesky.selectedSlot])
 		else
 			Pesky.UI.minionWidget:SetVisible(not Pesky.UI.minionWidget:GetVisible())
+		end
+	elseif command == "card" then
+		if not Pesky.MinionCard0 then
+			Pesky.MinionCard0 = Pesky.UI.CreateCard("card0", Pesky.context)
+			Pesky.MinionCard0:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 5, 340)
+			Pesky.MinionCard0:SetCardDisplay(Pesky.advDeck[Pesky.selectedSlot])
+		else
+			Pesky.MinionCard0:SetVisible(not Pesky.MinionCard0:GetVisible())
 		end
 	elseif command == "noicon" then
 		for id, details in pairs(Pesky.minionDB) do
@@ -231,8 +240,10 @@ function Pesky.SystemUpdateHandler_Init(hEvent)
 			Pesky.UpdateAdventureDB(details)
 		elseif details.mode == "working" then
 			Pesky.advWorking[id] = details
+			Pesky.minionWorking[details.minion] = details
 		elseif details.mode == "finished" then
 			Pesky.advFinished[id] = details
+			Pesky.minionWorking[details.minion] = details
 		end
 	end
 	Pesky.InitMinionDB()

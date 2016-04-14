@@ -7,7 +7,7 @@ local levelStat =
 {
 	[1] = 1 + 1,
 	[2] = 1 + 2,
-	[2] = 1 + 3,
+	[3] = 1 + 3,
 	[4] = 2 + 4,
 	[5] = 2 + 5,
 	[6] = 2 + 6,
@@ -27,7 +27,7 @@ local levelStat =
 	[20] = 6 + 16,
 	[21] = 6 + 16,
 	[22] = 6 + 16,
-	--[23] = ???
+	[23] = 6 + 17,
 	[24] = 6 + 17,
 	[25] = 7 + 18
 }
@@ -35,21 +35,23 @@ local levelStat =
 local statList =
 {
 	-- elements: erde < luft < feuer < wasser < leben < tod
-	-- tasks: jagd < dipl < ernte < dim < arte < mord
+	"statEarth",
 	"statAir",
+	"statFire",
+	"statWater",
+	"statLife",
+	"statDeath",
+	-- tasks: jagd < dipl < ernte < dim < arte < mord
+	"statHunting",
+	"statDiplomacy",
+	"statHarvest",
+	"statDimension",
 	"statArtifact",
 	"statAssassination",
-	"statDeath",
-	"statDimension",
-	"statDiplomacy",
-	"statEarth",
-	"statExploration", -- ???
-	"statFire",
-	"statHarvest",
-	"statHunting",
-	"statLife",
-	"statWater"
+	"statExploration" -- ???
 }
+Pesky.statList = statList
+
 -- we actually want a descending list, so return first <better> second
 function compareScore(first, second)
 	if first.score == second.score then
@@ -62,9 +64,9 @@ end
 function Minions.GetSuitableMinions(adventure)
 	local list = {}
 	for id, details in pairs(Pesky.minionDB) do
-		local m_score = Minions.GetScore(adventure, details)
+		local m_score, m_real_score = Minions.GetScore(adventure, details)
 		if m_score > 0 then
-			table.insert(list, { score = m_score, minion = details })
+			table.insert(list, { score = m_score, real_score = m_real_score, minion = details })
 		end
 	end
 	table.sort(list, compareScore)
@@ -78,5 +80,10 @@ function Minions.GetScore(adventure, minion)
 			sum = sum + minion[stat]
 		end
 	end
-	return sum
+	-- test --
+	if sum > 2 and minion.level < 25 then
+		local scaled_score = levelStat[25] * sum / levelStat[minion.level]
+		return scaled_score, sum
+	end
+	return sum, sum
 end
