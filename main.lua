@@ -258,9 +258,26 @@ function Pesky.MinionChangeHandler(hEvent, minions)
 	end
 end
 
+function Pesky.ItemSlotChangeHandler(hEvent, updates)
+	for slot, item in pairs(updates) do
+		if item then
+			local slot_type = Utility.Item.Slot.Parse(slot)
+			if slot_type == "inventory" then
+				local details = Inspect.Item.Detail(item)
+				if details and details.type == "IFAC80140C0E946E2,FCB9F14CDB2B834E,,,,,," then
+					Command.Item.Destroy(item)
+					print("Destroyed ", details.name, slot)
+				end
+			end
+		end
+	end
+end
+
+
 Command.Event.Attach(Event.Minion.Adventure.Change, Pesky.AdventureChangeHandler, "pesky_shuffle")
 Command.Event.Attach(Command.Slash.Register("pesky"), Pesky.CommandHandler, "Pesky Minions Command")
 Command.Event.Attach(Event.Addon.SavedVariables.Load.End, Pesky.LoadEndHandler, "Pesky Loaded")
 Command.Event.Attach(Event.Minion.Minion.Change, Pesky.MinionChangeHandler, "pesky_minion_update")
 Command.Event.Attach(Event.Unit.Availability.Full, Pesky.AvailabilityHandler, "pesky_availability")
+Command.Event.Attach(Event.Item.Slot, Pesky.ItemSlotChangeHandler, "pesky_item_slot")
 --Command.Event.Attach(Event.System.Update.End, Pesky.SystemUpdateHandler_Init, "pesky_poll_init")
