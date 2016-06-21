@@ -24,21 +24,22 @@ local images =
 	bg_overlay = "Minion_I273.dds",
 	stamina = "Minion_I24.dds", -- 128x128, 24, 27, 158, 15B
 	aventurin = "Minion_I2C9.dds",
+	magnet = { asset = "minion_magnet.png.dds", height = 25, width = 28 },
 	-- stats
 	-- elements
-	statEarth = { asset = "Minion_I28.dds", width = 18 }, -- 28, 2B, 13E, 141	-- 16x17 ? 17x17 ?
-	statAir = { asset = "Minion_I2A.dds", width = 18 }, -- 2A, 2D, 140, 143	 -- 15x17 ?
-	statFire = { asset = "Minion_I2C.dds", width = 16 },-- 16x32: 2C, 2F, 142, 145		-- 14x17 ?
-	statWater = { asset = "Minion_I2E.dds", width = 12 }, -- 16x32: 2E, 31, 144, 147	 -- 11x17
-	statLife = { asset = "Minion_I30.dds", width = 18 }, -- 30, 33, 146, 149
-	statDeath = { asset = "Minion_I32.dds", width = 18 }, -- 32, 35, 148, 14B
+	statEarth = { asset = "Minion_I28.dds", height = 18, width = 17 }, -- 28, 2B, 13E, 141	-- 16x17 ? 17x17 ?
+	statAir = { asset = "Minion_I2A.dds", height = 17, width = 18 }, -- 2A, 2D, 140, 143	 -- 15x17 ?
+	statFire = { asset = "Minion_I2C.dds", height = 18, width = 15 },-- 16x32: 2C, 2F, 142, 145		-- 14x17 ?
+	statWater = { asset = "Minion_I2E.dds", height = 18, width = 12 }, -- 16x32: 2E, 31, 144, 147	 -- 11x17
+	statLife = { asset = "Minion_I30.dds", height = 18, width = 18 }, -- 30, 33, 146, 149
+	statDeath = { asset = "Minion_I32.dds", height = 18, width = 18 }, -- 32, 35, 148, 14B
 	-- tasks
-	statHunting = { asset = "Minion_I34.dds", width = 18 }, -- 34, 37, 14A(?), 14D	-- 16x17 ?
-	statDiplomacy = { asset = "Minion_I36.dds", width = 18 }, -- 36, 39, 14C, 14F	 -- 15x17
-	statHarvest = { asset = "Minion_I38.dds", width = 18 }, -- 38, 3B, 14E, 151		--	17x17
-	statDimension = { asset = "Minion_I3A.dds", width = 18 }, -- 3A, 3D, 150, 153	-- 17x17
-	statArtifact = { asset = "Minion_I3C.dds", width = 18 }, -- 3C, 3F, 152, 155
-	statAssassination = { asset = "Minion_I3E.dds", width = 18 }, -- 3E, 41, 140, 157  -- 17x17
+	statHunting = { asset = "Minion_I34.dds", height = 18, width = 18 }, -- 34, 37, 14A(?), 14D	-- 16x17 ?
+	statDiplomacy = { asset = "Minion_I36.dds", height = 18, width = 17 }, -- 36, 39, 14C, 14F	 -- 15x17
+	statHarvest = { asset = "Minion_I38.dds", height = 17, width = 18 }, -- 38, 3B, 14E, 151		--	17x17
+	statDimension = { asset = "Minion_I3A.dds", height = 18, width = 18 }, -- 3A, 3D, 150, 153	-- 17x17
+	statArtifact = { asset = "Minion_I3C.dds", height = 18, width = 18 }, -- 3C, 3F, 152, 155
+	statAssassination = { asset = "Minion_I3E.dds", height = 18, width = 18 }, -- 3E, 41, 140, 157  -- 17x17
 --	"statExploration",
 	-- adventures
 	rewardHunting = "Minion_IC6.dds",
@@ -77,6 +78,12 @@ function Pesky.UI.CreateIcon(name, parent, width, height, texture, resource)
 	return icon
 end
 
+function Pesky.UI.SetIcon(frame, image)
+	frame:SetTexture(image.resource or "Rift", image.asset)
+	if image.width then frame:SetWidth(image.width) end
+	if image.height then frame:SetHeight(image.height) end
+end
+
 function Pesky.UI.CreateMinionIcon(name, parent)
 	local widget = UI.CreateFrame("Frame", name, parent)
 	widget:SetWidth(192)
@@ -97,6 +104,10 @@ function Pesky.UI.CreateMinionIcon(name, parent)
 	--widget.level_plate:SetWidth(30)
 	--widget.level_plate:SetHeight(19)
 	widget.level_plate:SetLayer(30)
+
+	widget.magnet = Pesky.UI.CreateIcon(name .. "attractor", widget, images.magnet.width, images.magnet.height, images.magnet.asset)
+	widget.magnet:SetPoint("TOPLEFT", widget.icon_border, "TOPLEFT", 30, 8)
+	widget.magnet:SetLayer(35)
 
 	widget.level_text = UI.CreateFrame("Text", name .. "level", widget)
 	widget.level_text:SetPoint("BOTTOMCENTER", widget.icon_border, "BOTTOMCENTER", 0, 1)
@@ -133,8 +144,16 @@ function Pesky.UI.SetMinionDisplay(widget, details, score)
 	local border_img = icon_border[details.rarity] or icon_border.common
 	widget.icon_border:SetTexture("Rift", border_img)
 	local icon = images.placeholder
-	if Pesky.Data.Minion[details.id] and Pesky.Data.Minion[details.id].icon then
-		icon = Pesky.Data.Minion[details.id].icon .. ".dds"
+	local db_entry = Pesky.Data.Minion[details.id]
+	if db_entry then
+		if db_entry.icon  then
+			icon = Pesky.Data.Minion[details.id].icon .. ".dds"
+		end
+		if db_entry.attractorType then
+			widget.magnet:SetVisible(true)
+		else
+			widget.magnet:SetVisible(false)
+		end
 	end
 	widget.icon:SetTexture("Rift", icon)
 	widget.level_text:SetText(tostring(details.level))
@@ -187,12 +206,10 @@ function Pesky.UI.SetCardDisplay(widget, details)
 		end
 	end
 	if cardStats[1] then
-		widget.attribute1:SetTexture("Rift", images[cardStats[1]].asset)
-		widget.attribute1:SetWidth(images[cardStats[1]].width)
+		Pesky.UI.SetIcon(widget.attribute1, images[cardStats[1]])
 	end
 	if cardStats[2] then
-		widget.attribute2:SetTexture("Rift", images[cardStats[2]].asset)
-		widget.attribute2:SetWidth(images[cardStats[2]].width)
+		Pesky.UI.SetIcon(widget.attribute2, images[cardStats[2]])
 	end
 	local duration = details.duration / 60
 	if duration < 60 then
