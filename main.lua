@@ -53,6 +53,20 @@ function Pesky.RemoveFromDeck(details)
 	dump(details)
 end
 
+function Pesky.SetSelectedSlot(slot)
+	assert(slot > 0 and slot < 5, "Invalid argument")
+	if Pesky.selectedSlot == slot then
+		return
+	end
+	Pesky.selectedSlot = slot
+	Pesky.UI.UpdateSuitableMinions(Pesky.advDeck[slot])
+	Pesky.MinionCard0:SetCardDisplay(Pesky.advDeck[slot])
+end
+
+function Pesky.GetSelectedSlot()
+	return Pesky.selectedSlot
+end
+
 function Pesky.AdventureChangeHandler(hEvent, adventures)
 	print("Adventure.Change")
 	local details

@@ -42,12 +42,18 @@ local images =
 	statAssassination = { asset = "Minion_I3E.dds", height = 18, width = 18 }, -- 3E, 41, 140, 157  -- 17x17
 --	"statExploration",
 	-- adventures
+	adv_1m = "Minion_I1B5.dds",
+	adv_5m = "Minion_I1AF.dds",
+	adv_8h = "Minion_I1C1.dds",
+	adv_pro = "Minion_I1B3.dds",
 	rewardHunting = "Minion_IC6.dds",
 	rewardDiplomacy = "Minion_IC8.dds",
 	rewardHarvest = "Minion_ICA.dds",
 	rewardDimension = "Minion_ICC.dds",
 	rewardArtifact = "Minion_ICE.dds",
 	rewardAssassination = "Minion_ID4.dds",
+	rewardXP_bg = "Minion_ID6.dds",
+	rewardXP_half = "Minion_ID8.dds",
 	rewardHalloween = "Minion_IE0.dds",
 	rewardFaeYule = "Minion_IE9.dds",
 	rewardSummer = "Minion_IEB.dds",
@@ -58,8 +64,7 @@ local images =
 }
 
 function Pesky.UI.RightClickhandler(frame, hEvent)
-	-- TODO: Slot setting, now only 5/15/20m slot
-	local adventure = Pesky.advDeck[2]
+	local adventure = Pesky.advDeck[Pesky.GetSelectedSlot()]
 	if frame.minion_id and adventure then
 		print(string.format("Sending %s on %s", frame.minion_id, adventure.name))
 		Command.Minion.Send(frame.minion_id, adventure.id, "none")
@@ -195,6 +200,8 @@ function Pesky.UI.CreateCard(name, parent)
 	widget.attribute2:SetPoint("TOPLEFT", widget, "TOPLEFT", 34, 44)
 
 	widget.SetCardDisplay = Pesky.UI.SetCardDisplay
+	widget:EventAttach(Event.UI.Input.Mouse.Wheel.Back, Pesky.UI.CardWheelDownHandler, "Pesky_card_wheel_down")
+	widget:EventAttach(Event.UI.Input.Mouse.Wheel.Forward, Pesky.UI.CardWheelUpHandler, "Pesky_card_wheel_up")
 	return widget
 end
 
@@ -242,4 +249,20 @@ function Pesky.UI.UpdateSuitableMinions(adventure_details)
 			Pesky.UI.minionList[i]:SetVisible(true)
 		end
 	end
+end
+
+function Pesky.UI.CardWheelUpHandler(frame, event)
+	local new_slot = Pesky.GetSelectedSlot() - 1
+	if new_slot < 1 then
+		new_slot = 4
+	end
+	Pesky.SetSelectedSlot(new_slot)
+end
+
+function Pesky.UI.CardWheelDownHandler(frame, event)
+	local new_slot = Pesky.GetSelectedSlot() + 1
+	if new_slot > 4 then
+		new_slot = 1
+	end
+	Pesky.SetSelectedSlot(new_slot)
 end
