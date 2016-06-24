@@ -71,6 +71,17 @@ function Pesky.UI.RightClickhandler(frame, hEvent)
 	end
 end
 
+-- Create a text frame
+function Pesky.UI.CreateText(name, parent, x, y, text, fontsize, color, shadow)
+	local textFrame = UI.CreateFrame("Text", name, parent)
+	if x and y then textFrame:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y) end
+	if text then textFrame:SetText(text) end
+	if fontsize then textFrame:SetFontSize(fontsize) end
+	if color then textFrame:SetFontColor(color[1], color[2], color[3], color[4]) end
+	if shadow ~= false then textFrame:SetEffectGlow({offsetX=1, offsetY=1}) end
+	return textFrame
+end
+
 function Pesky.UI.CreateIcon(name, parent, width, height, texture, resource)
 	local icon = UI.CreateFrame("Texture", name , parent)
 	icon:SetTexture(resource or "Rift", texture)
@@ -121,8 +132,7 @@ function Pesky.UI.CreateMinionIcon(name, parent)
 	widget.level_text:SetText("25")
 	widget.level_text:SetLayer(40)
 
-	widget.name_text = UI.CreateFrame("Text", name .. "name", widget)
-	widget.name_text:SetPoint("TOPLEFT", widget, "TOPLEFT", 64, 3)
+	widget.name_text = Pesky.UI.CreateText(name .. "name", widget, 64, 3)
 	widget.name_text:SetWidth(128)
 
 	--widget.stamina_icon = UI.CreateFrame("Texture", name .. "stamina_icon", widget)
@@ -132,10 +142,10 @@ function Pesky.UI.CreateMinionIcon(name, parent)
 	--widget.stamina_icon:SetWidth(32)
 	--widget.stamina_icon:SetHeight(32)
 
-	widget.stamina = UI.CreateFrame("Text", name .. "stamina", widget)
+	widget.stamina = Pesky.UI.CreateText(name .. "stamina", widget)
 	widget.stamina:SetPoint("TOPRIGHT", widget.stamina_icon, "BOTTOMRIGHT")
 
-	widget.score = UI.CreateFrame("Text", name .. "score", widget)
+	widget.score = Pesky.UI.CreateText(name .. "score", widget)
 	widget.score:SetPoint("TOPRIGHT", widget.stamina, "BOTTOMRIGHT")
 
 	widget:EventAttach(Event.UI.Input.Mouse.Right.Click, Pesky.UI.RightClickhandler, name .. "_right_click")
