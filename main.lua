@@ -114,6 +114,7 @@ function Pesky.AdventureChangeHandler(hEvent, adventures)
 	end
 	for id, details in pairs(available) do
 		local slot = Pesky.Adventure.GetSlot(details)
+		--TODO: handle case of undetected slot for new adventures with non-standard parameters
 		local rem_id = Pesky.advDeck[slot] and Pesky.advDeck[slot].id
 		if rem_id then
 			if removed[rem_id] then
@@ -274,7 +275,7 @@ end
 
 function Pesky.ItemSlotChangeHandler(hEvent, updates)
 	for slot, item in pairs(updates) do
-		if item then
+		if item and item ~= "nil" then -- string "nil" indicates that a slot became unavailable (bag remove)
 			local slot_type = Utility.Item.Slot.Parse(slot)
 			if slot_type == "inventory" then
 				local details = Inspect.Item.Detail(item)
