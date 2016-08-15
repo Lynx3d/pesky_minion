@@ -188,7 +188,7 @@ Pesky.Data.Minion = {
 	["mn.mn.55165717150B3E6F"] = { name = "Mitch", icon = "item_icons\\bard_masks", attractorType = "Diplomacy" },
 	["mn.mn.07FA9FBDBBDAA38C"] = { name = "Swarmlord Khargroth", icon = "item_icons\\pet_scarab_a" },
 	["mn.mn.590CDD3504BB14BD"] = { name = "Rusila Dreadblade", icon = "item_icons\\trinket24" },
-	["mn.mn.6B7CD324AF131E89"] = { name = "Captain Dagon", icon = "item_icons\\pirate_hat.dds" }
+	["mn.mn.6B7CD324AF131E89"] = { name = "Captain Dagon", icon = "item_icons\\pirate_hat" }
 }
 --[[ missing:
 Snerkle, icon = "item_icons\\pet_spirit_fire_lesser"
