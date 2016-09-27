@@ -207,3 +207,44 @@ The Hag of Gloamwood, icon = "ability_icons\\finalstrike3a"
 Sir Razerton, icon = "item_icons\\shrimp_razer"
 Skitters, icon = "item_icons\\pet_scarab_a"
 ]]--
+
+local team_tasuil = {
+	["mn.mn.66E70EB0864A2F1E"] = true,
+	["mn.mn.43F561F85E9FA979"] = true,
+	["mn.mn.00E0A4F5C1A34FDA"] = true,
+	["mn.mn.735D8D773DC87D97"] = true,
+	["mn.mn.1D5C4C2FEA8C95B5"] = true,
+	["mn.mn.718748DBB5C52F47"] = true
+}
+
+Pesky.Data.Adventure_Requirements = {
+	-- "Tasuil is Missing" chain
+	["mn.adv.0000006E42C33A1E"] = { minion = { ["mn.mn.372432D8A4282398"] = true } },
+	["mn.adv.000000782C301D54"] = { minion = { ["mn.mn.3980BC81EF137149"] = true } },
+	["mn.adv.0000008C0B61BDBF"] = { level = 15 },
+	["mn.adv.0000009613E52306"] = { stat = {statHunting = true } },
+	["mn.adv.000000A00CB9634A"] = { minion = team_tasuil },
+	-- Orlan, Lil Reggie, Ionraic, C1-0N3, Quaq and Pyrestorm preparation quests
+	["mn.adv.000000C31E570451"] = { minion = { ["mn.mn.735D8D773DC87D97"] = true } },
+	["mn.adv.000000C4173BDA27"] = { minion = { ["mn.mn.00E0A4F5C1A34FDA"] = true } },
+	["mn.adv.000000BF41F04405"] = { minion = { ["mn.mn.718748DBB5C52F47"] = true } },
+	["mn.adv.000000C0488D2773"] = { minion = { ["mn.mn.43F561F85E9FA979"] = true } },
+	["mn.adv.000000C2600DE62F"] = { minion = { ["mn.mn.1D5C4C2FEA8C95B5"] = true } },
+	["mn.adv.000000C157D107A9"] = { minion = { ["mn.mn.66E70EB0864A2F1E"] = true } },
+
+	["mn.adv.000000BE6C4A2F0B"] = {minion = team_tasuil},
+	-- Pyrestorm, C1-0N3, Lil Reggie, Orlan, Quaq and Ionraic rehearsal quests
+	["mn.adv.000000C83F76B739"] = { minion = { ["mn.mn.66E70EB0864A2F1E"] = true } },
+	["mn.adv.000000D2587D4537"] = { minion = { ["mn.mn.43F561F85E9FA979"] = true } },
+	["mn.adv.000000DC7C1BA193"] = { minion = { ["mn.mn.00E0A4F5C1A34FDA"] = true } },
+	["mn.adv.000000E614790CEE"] = { minion = { ["mn.mn.735D8D773DC87D97"] = true } },
+	["mn.adv.000000F030139A72"] = { minion = { ["mn.mn.1D5C4C2FEA8C95B5"] = true } },
+	["mn.adv.000000FA3BA917BD"] = { minion = { ["mn.mn.718748DBB5C52F47"] = true } },
+	-- team quests
+	["mn.adv.00000106603D906D"] = { minion = { ["mn.mn.1D5C4C2FEA8C95B5"] = true } },
+	["mn.adv.00000105243C3D80"] = { minion = { ["mn.mn.43F561F85E9FA979"] = true } },
+	["mn.adv.0000010F3E6FC73E"] = { minion = { ["mn.mn.66E70EB0864A2F1E"] = true } },
+	["mn.adv.0000011076BACFCD"] = { minion = { ["mn.mn.00E0A4F5C1A34FDA"] = true } },
+	["mn.adv.0000011A26808461"] = { minion = { ["mn.mn.735D8D773DC87D97"] = true } },
+	["mn.adv.0000011943B58D9C"] = { minion = { ["mn.mn.718748DBB5C52F47"] = true } }
+}

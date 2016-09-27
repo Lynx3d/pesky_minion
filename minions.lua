@@ -63,10 +63,32 @@ end
 
 function Minions.GetSuitableMinions(adventure)
 	local list = {}
+	local requirement_dat = Pesky.Data.Adventure_Requirements
 	for id, details in pairs(Pesky.minionDB) do
-		local m_score, m_real_score = Minions.GetScore(adventure, details)
-		if m_score > 0 then
-			table.insert(list, { score = m_score, real_score = m_real_score, minion = details })
+		-- check requirements
+		local suitable = true
+		local reqs = requirement_dat[adventure.id]
+		if reqs then
+			if type(reqs.minion) == "table" and not reqs.minion[id] then
+				suitable = false
+			end
+			if suitable and type(reqs.stat) == "table" then
+				local has_stat = false
+				for stat, _ in pairs(reqs.stat) do
+					if details[stat] then has_stat = true end
+				end
+				suitable = has_stat
+			end
+			if suitable and type(reqs.level) == "number" and details.level < reqs.level then
+				suitable = false
+			end
+		end
+		-- get score
+		if suitable then
+			local m_score, m_real_score = Minions.GetScore(adventure, details)
+			if m_score > 0 then
+				table.insert(list, { score = m_score, real_score = m_real_score, minion = details })
+			end
 		end
 	end
 	table.sort(list, compareScore)
