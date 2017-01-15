@@ -188,7 +188,14 @@ Pesky.Data.Minion = {
 	["mn.mn.55165717150B3E6F"] = { name = "Mitch", icon = "item_icons\\bard_masks", attractorType = "Diplomacy" },
 	["mn.mn.07FA9FBDBBDAA38C"] = { name = "Swarmlord Khargroth", icon = "item_icons\\pet_scarab_a" },
 	["mn.mn.590CDD3504BB14BD"] = { name = "Rusila Dreadblade", icon = "item_icons\\trinket24" },
-	["mn.mn.6B7CD324AF131E89"] = { name = "Captain Dagon", icon = "item_icons\\pirate_hat" }
+	["mn.mn.6B7CD324AF131E89"] = { name = "Captain Dagon", icon = "item_icons\\pirate_hat" },
+	["mn.mn.396E5914D2478492"] = { name = "Gakakhis", icon = "ability_icons\\defiler_mask_of_depravity_a" },
+	["mn.mn.26109FF689247A9D"] = { name = "Mael Salach", icon = "ability_icons\\bowyer1" },
+	["mn.mn.5EA6D7CAA078033C"] = { name = "Garn", icon = "ability_icons\\fiery_blessing" },
+	["mn.mn.7F297AD0B9F3C92D"] = { name = "Prince Tristaine", icon = "item_icons\\neck30" },
+	["mn.mn.716E32D9A2261F12"] = { name = "Duke Arcarax", icon = "ability_icons\\heroicsurge1" },
+	["mn.mn.771B0FD60C68FBB3"] = { name = "Michael Bringhurst", icon = "item_icons\\pet_dire-wolf" },
+	["mn.mn.7B1F44EC5E7980A1"] = { name = "Jolly Hellbug", icon = "item_icons\\mount_hellbug_faeyule", attractorType = "Assassination" }
 }
 --[[ missing:
 Snerkle, icon = "item_icons\\pet_spirit_fire_lesser"
